@@ -1,0 +1,10 @@
+2024-11-12 10:27:11,788 - INFO - Connected to server 192.168.248.91:43521
+2024-11-12 10:27:22,217 - INFO - Calculated result: 15.964116432160003 for option: Variant 1
+2024-11-12 10:27:22,219 - INFO - Sent result to server: 15.964116432160003
+2024-11-12 10:28:00,353 - INFO - Calculated result: 13.988940557021316 for option: Variant 1
+2024-11-12 10:28:00,356 - INFO - Sent result to server: 13.988940557021316
+2024-11-12 10:36:30,604 - INFO - Connected to server 192.168.115.91:55291
+2024-11-12 10:38:32,718 - INFO - Calculated result: 4.83346921706204 for option: Variant 1
+2024-11-12 10:38:32,719 - INFO - Sent result to server: 4.83346921706204
+2024-11-12 10:52:28,829 - ERROR - Error receiving data from server: [Errno 104] Соединение разорвано другой стороной
+2024-11-12 10:52:29,662 - ERROR - Connection lost: [Errno 32] Обрыв канала

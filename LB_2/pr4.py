@@ -16,7 +16,8 @@ print(data.info())
 # Анализ корреляции
 corr_matrix = data.corr()
 sns.heatmap(corr_matrix, annot=True, cmap="YlGnBu")
-plt.savefig('/home/kbalashov/VS_Code/TONN/LB_2/correlation_heatmap.png')  # Сохраняем график корреляции
+plt.savefig('/home/kbalashov/VS_Code/TONN/LB_2/correlation_heatmap.png')
+0# Сохраняем график корреляции
 plt.close()  # Закрываем график после сохранения
 
 # Подготовка данных
