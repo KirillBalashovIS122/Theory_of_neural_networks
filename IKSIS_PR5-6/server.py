@@ -1,4 +1,5 @@
 import socket
+import threading
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
 import sys
@@ -21,7 +22,7 @@ class ServerApp(qtw.QWidget):
         self.variant_label = qtw.QLabel("Select variant:")
         self.layout.addWidget(self.variant_label)
         self.variant_selector = qtw.QComboBox()
-        self.variant_selector.addItems(["Variant 1 (sin(x)/2 Y>0)", "Variant 2 (cos(x)/2 Y<0)"])
+        self.variant_selector.addItems(["Variant 1 (sin(x) Y>0)", "Variant 2 (cos(x) Y<0)"])
         self.layout.addWidget(self.variant_selector)
 
         self.range_label = qtw.QLabel("Enter range (start, end, step):")
@@ -59,12 +60,15 @@ class ServerApp(qtw.QWidget):
         self.server_socket = None
         self.results = {}
 
+        self.system_info_file_path = "client_info.txt"
+
         self.update_client_table_signal.connect(self.update_client_table)
         self.update_results_table_signal.connect(self.update_results_table)
 
         self.start_server()
 
     def get_ip_address(self):
+        """Automatically gets the local IP address of the server."""
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip_address = s.getsockname()[0]
@@ -72,24 +76,30 @@ class ServerApp(qtw.QWidget):
         return ip_address
 
     def start_server(self):
+        """Starts the server socket and listens for clients."""
         ip_address = self.get_ip_address()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         self.server_socket.bind((ip_address, 0))
         server_ip, server_port = self.server_socket.getsockname()
         self.ip_label.setText(f"IP: {server_ip}")
         self.port_label.setText(f"Port: {server_port}")
         self.server_socket.listen(5)
-        self.accept_clients()
+
+        threading.Thread(target=self.accept_clients, daemon=True).start()
 
     def accept_clients(self):
+        """Accepts new clients and adds them to the client list."""
         while True:
             client_socket, client_address = self.server_socket.accept()
             client_name = f'Client {len(self.clients) + 1}'
             self.clients.append((client_socket, client_name, client_address[0]))
             self.update_client_table_signal.emit()
-            self.handle_client(client_socket, client_name)
+
+            threading.Thread(target=self.handle_client, args=(client_socket, client_name), daemon=True).start()
 
     def update_client_table(self):
+        """Updates the client table in the GUI."""
         self.client_table.setRowCount(len(self.clients))
         for i, (client_socket, client_name, client_ip) in enumerate(self.clients):
             self.client_table.setItem(i, 0, qtw.QTableWidgetItem(client_ip))
@@ -97,6 +107,7 @@ class ServerApp(qtw.QWidget):
             self.client_table.setItem(i, 2, qtw.QTableWidgetItem("Connected"))
 
     def disconnect_client(self):
+        """Handles the disconnection of the selected client."""
         selected_row = self.client_table.currentRow()
         if selected_row >= 0 and selected_row < len(self.clients):
             client_socket, client_name, _ = self.clients.pop(selected_row)
@@ -104,6 +115,7 @@ class ServerApp(qtw.QWidget):
             self.update_client_table_signal.emit()
 
     def assign_task(self):
+        """Assigns the task to all connected clients."""
         try:
             start = float(self.range_start.text())
             end = float(self.range_end.text())
@@ -130,6 +142,7 @@ class ServerApp(qtw.QWidget):
             qtw.QMessageBox.critical(self, 'Input Error', 'Please enter valid numbers for range and step.')
 
     def handle_client(self, client_socket, client_name):
+        """Handles communication with the connected client."""
         while True:
             try:
                 data = client_socket.recv(1024)
@@ -138,7 +151,9 @@ class ServerApp(qtw.QWidget):
 
                 try:
                     message = json.loads(data.decode())
-                    if "result" in message:
+                    if "info" in message:
+                        self.save_system_info(message["info"])
+                    elif "result" in message:
                         result = message["result"]
                         self.update_results_table_signal.emit(result)
                     else:
@@ -154,6 +169,7 @@ class ServerApp(qtw.QWidget):
                 break
 
     def update_results_table(self, result):
+        """Updates the results table with the received data."""
         variant = self.variant_selector.currentText()
         if variant not in self.results:
             self.results[variant] = 0
@@ -166,11 +182,13 @@ class ServerApp(qtw.QWidget):
             self.results_table.setItem(row_position, 0, qtw.QTableWidgetItem(variant))
             self.results_table.setItem(row_position, 1, qtw.QTableWidgetItem(str(total_result)))
 
+
 def run_server():
     app = qtw.QApplication(sys.argv)
     main_window = ServerApp()
     main_window.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     run_server()

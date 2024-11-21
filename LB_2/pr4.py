@@ -12,12 +12,11 @@ data = pd.read_csv('/home/kbalashov/advertising.csv')
 print(data.head())
 print(data.info())
 
-# Остальной код анализа, обучения и оценки модели
 # Анализ корреляции
 corr_matrix = data.corr()
 sns.heatmap(corr_matrix, annot=True, cmap="YlGnBu")
 plt.savefig('/home/kbalashov/VS_Code/TONN/LB_2/correlation_heatmap.png')
-0# Сохраняем график корреляции
+# Сохраняем график корреляции
 plt.close()  # Закрываем график после сохранения
 
 # Подготовка данных
