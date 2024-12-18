@@ -67,15 +67,12 @@ img_width = 150
 print("Загрузка данных из директории...")
 dataset, class_names = load_dataset(data_dir)
 
-# Проверка общего количества изображений
 print(f"Общее количество изображений: {len(dataset)}")
 
-# Разделение на обучающую и валидационную выборки
 train_size = int(0.8 * len(dataset))
 train_ds = dataset.take(train_size).batch(batch_size, drop_remainder=True)
 val_ds = dataset.skip(train_size).batch(batch_size, drop_remainder=True)
 
-# Проверка количества изображений в обучающей и валидационной выборках
 print(f"Количество изображений в обучающей выборке: {len(list(train_ds)) * batch_size}")
 print(f"Количество изображений в валидационной выборке: {len(list(val_ds)) * batch_size}")
 
@@ -129,7 +126,6 @@ y_pred = model.predict(val_ds)
 y_pred_classes = np.argmax(y_pred, axis=1)
 y_true = np.concatenate([y for x, y in val_ds], axis=0)
 
-# Проверка количества изображений в тестовой выборке
 print(f"Количество изображений в тестовой выборке: {len(y_true)}")
 
 print("Отчет о классификации:")
@@ -139,7 +135,6 @@ print("Матрица ошибок:")
 conf_matrix = confusion_matrix(y_true, y_pred_classes)
 print(conf_matrix)
 
-# Проверка количества изображений в матрице ошибок
 print(f"Количество изображений в матрице ошибок: {conf_matrix.sum()}")
 
 fpr, tpr, thresholds = roc_curve(y_true, y_pred.max(axis=1))
@@ -154,15 +149,12 @@ plt.title('Receiver Operating Characteristic')
 plt.legend(loc="lower right")
 plt.show()
 
-# Отображение верно и неверно классифицированных изображений в одной фигуре
 correct_indices = np.where(y_pred_classes == y_true)[0]
 incorrect_indices = np.where(y_pred_classes != y_true)[0]
 
-# Создаем сетку для отображения изображений
 fig, axes = plt.subplots(2, 3, figsize=(12, 8))
 fig.suptitle('Классифицированные изображения')
 
-# Отображение верно классифицированных изображений
 for i, ax in enumerate(axes[0]):
     if i < len(correct_indices):
         img, label = next(iter(val_ds.unbatch().skip(correct_indices[i]).batch(1)))
@@ -174,7 +166,6 @@ for i, ax in enumerate(axes[0]):
     else:
         ax.axis('off')
 
-# Отображение неверно классифицированных изображений
 for i, ax in enumerate(axes[1]):
     if i < len(incorrect_indices):
         img, label = next(iter(val_ds.unbatch().skip(incorrect_indices[i]).batch(1)))
