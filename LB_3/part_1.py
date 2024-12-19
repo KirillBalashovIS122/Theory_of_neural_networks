@@ -49,9 +49,9 @@ def train_and_evaluate_model():
     plt.subplot(1, 2, 1)
     plt.plot(history.history['loss'], label='Обучающая ошибка')
     plt.plot(history.history['val_loss'], label='Валидационная ошибка')
-    plt.title('Ошибка')
+    plt.title('Потери')
     plt.xlabel('Эпохи')
-    plt.ylabel('Ошибка')
+    plt.ylabel('Потери')
     plt.legend()
 
     plt.subplot(1, 2, 2)
