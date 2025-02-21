@@ -59,7 +59,7 @@ def load_dataset(data_dir):
     dataset = dataset.map(lambda path, label: (load_and_preprocess_image(path), label))
     return dataset, class_names
 
-data_dir = '/home/kbalashov/VS_Code/TONN/LB_3/sources/seasons'
+data_dir = '/home/kbalashov/VS_Code/TONN/LB_3/sources/seasons_1'
 batch_size = 32
 img_height = 150
 img_width = 150

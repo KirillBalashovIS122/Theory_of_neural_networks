@@ -52,7 +52,7 @@ def load_dataset(data_dir):
                     rel_path = os.path.relpath(file_path, data_dir)
                     class_name = os.path.basename(os.path.dirname(rel_path))
                     class_names.add(class_name)
-                    image_paths.append(file_path)  # Убедимся, что это строка
+                    image_paths.append(file_path)
                     labels.append(class_name)
                 except Exception as e:
                     print(f"Ошибка при загрузке изображения {file_path}: {e}")
