@@ -1,6 +1,6 @@
 import numpy as np
 import pretty_midi
-import pyfluidsynth
+#import pyfluidsynth
 
 def load_midi_data(file_path):
     """Загружает MIDI-файл и возвращает список нот."""
@@ -36,10 +36,9 @@ def play_midi(notes):
         start_time = end_time
     midi.instruments.append(instrument)
     midi.write("generated_music.midi")
-    fs = pyfluidsynth.Synth()
+    #fs = pyfluidsynth.Synth()
     sfid = fs.sfload("soundfont.sf2")
     fs.program_select(0, sfid, 0, 0)
     fs.start()
     fs.play_midi("generated_music.midi")
     fs.delete()
-    

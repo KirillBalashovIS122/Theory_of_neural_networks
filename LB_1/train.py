@@ -10,15 +10,18 @@ if not os.path.exists("models"):
     os.makedirs("models")
 
 # Загрузка данных
-notes = load_midi_data("data/example.midi")
+notes = load_midi_data("/home/kbalashov/VS_Code/TONN/data/maestro-v2_extracted/maestro-v2.0.0")
 X, y = prepare_sequences(notes)
 
 # Создание моделей
 def create_model1():
     model = Sequential([
-        LSTM(256, input_shape=(X.shape[1], 1)),
+        LSTM(256, input_shape=(X.shape[1], 1), return_sequences=True),
+        Dropout(0.3),
+        LSTM(128),
+        Dropout(0.3),
         Dense(128, activation='softmax')
-        ])
+    ])
     model.compile(loss='categorical_crossentropy', optimizer='adam')
     return model
 
@@ -27,6 +30,7 @@ def create_model2():
         LSTM(512, input_shape=(X.shape[1], 1), return_sequences=True),
         Dropout(0.3),
         LSTM(256),
+        Dropout(0.3),
         Dense(128, activation='softmax')
     ])
     model.compile(loss='categorical_crossentropy', optimizer='adam')
@@ -36,6 +40,7 @@ def create_model3():
     model = Sequential([
         LSTM(256, input_shape=(X.shape[1], 1), return_sequences=True),
         LSTM(128),
+        Dropout(0.3),
         Dense(128, activation='softmax')
     ])
     model.compile(loss='categorical_crossentropy', optimizer='adam')
