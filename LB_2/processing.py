@@ -16,6 +16,14 @@ if physical_devices:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 class ImageDenoiser:
+    """Класс для управления процессом шумоподавления.
+    
+    Attributes:
+        noise_factor (float): Уровень шума (0.1–0.5).
+        epochs (int): Количество эпох обучения.
+        models (dict): Словарь с моделями ('dense' и 'conv').
+        data_loaded (bool): Флаг загрузки данных.
+    """
     def __init__(self, noise_factor=0.3, epochs=8):
         self.noise_factor = noise_factor
         self.epochs = epochs
@@ -25,6 +33,7 @@ class ImageDenoiser:
         logging.debug(f"ImageDenoiser инициализирован с noise_factor={noise_factor}, epochs={epochs}")
 
     def load_data(self):
+        """Загружает данные Fashion MNIST и нормализует их."""
         logging.info("Загрузка данных Fashion MNIST...")
         (self.x_train, _), (self.x_test, _) = tf.keras.datasets.fashion_mnist.load_data()
         
@@ -37,6 +46,7 @@ class ImageDenoiser:
         logging.info(f"Данные подготовлены (шум: {self.noise_factor})")
 
     def _update_noisy_data(self):
+        """Генерирует зашумленные версии данных."""
         logging.debug("Генерация зашумленных данных...")
         self.x_train_noisy = self._add_noise(self.x_train)
         self.x_test_noisy = self._add_noise(self.x_test)
@@ -47,21 +57,36 @@ class ImageDenoiser:
         logging.debug(f"Зашумленные данные сгенерированы: train={self.x_train_noisy.shape}, test={self.x_test_noisy.shape}")
 
     def update_noise(self):
+        """Обновляет зашумленные данные при изменении уровня шума."""
         logging.info("Обновление шумовых параметров...")
         self._update_noisy_data()
 
     def _add_noise(self, data):
+        """Добавляет гауссов шум к данным.
+        
+        Args:
+            data (np.array): Исходные данные (форма (N, 28, 28)).
+        
+        Returns:
+            np.array: Зашумленные данные.
+        """
         logging.debug(f"Добавление шума к данным формы {data.shape}")
         noisy = data + self.noise_factor * np.random.normal(size=data.shape)
         return np.clip(noisy, 0., 1.)
 
     def build_models(self):
+        """Инициализирует модели автоэнкодеров."""
         logging.info("Инициализация новых моделей...")
         self.models['dense'] = DenseAutoencoder()
         self.models['conv'] = ConvAutoencoder()
         logging.debug("Архитектуры моделей созданы: DenseAutoencoder и ConvAutoencoder")
 
     def train_models(self, progress_callback=None):
+        """Обучает модели автоэнкодеров.
+        
+        Args:
+            progress_callback (function): Функция для отслеживания прогресса.
+        """
         logging.info("Старт обучения моделей...")
         self._train_single_model('dense', progress_callback)
         self._train_single_model('conv', progress_callback)
@@ -69,6 +94,15 @@ class ImageDenoiser:
         logging.info("Все модели успешно обучены")
 
     def _train_single_model(self, model_type, progress_callback=None):
+        """Обучает одну модель.
+        
+        Args:
+            model_type (str): Тип модели ('dense' или 'conv').
+            progress_callback (function): Функция для отслеживания прогресса.
+        
+        Raises:
+            Exception: Если возникает ошибка при обучении.
+        """
         try:
             logging.debug(f"Обучение {model_type} модели...")
             model = self.models[model_type]
@@ -100,6 +134,14 @@ class ImageDenoiser:
             raise
 
     def evaluate_models(self):
+        """Оценивает качество моделей с помощью метрики PSNR.
+        
+        Returns:
+            dict: Результаты оценки (зашумленные данные, предсказания, PSNR).
+        
+        Raises:
+            ValueError: Если данные не загружены или модели не обучены.
+        """
         logging.info("Оценка качества моделей...")
         try:
             if not self.data_loaded:
