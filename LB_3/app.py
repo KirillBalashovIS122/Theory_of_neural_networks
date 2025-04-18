@@ -2,6 +2,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
+from tensorflow.keras.models import load_model
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
@@ -78,7 +79,7 @@ class SegmentationApp:
     def check_model(self):
         if self.model_handler.load_saved_model():
             self.model_loaded = True
-            self.update_model_info("models/best_model.keras")
+            self.update_model_info("models/final_model.keras")
         else:
             self.show_model_dialog()
 
@@ -195,7 +196,7 @@ class SegmentationApp:
             def train_thread():
                 try:
                     self.model_handler.build_unet()
-                    self.model_handler.train(self.DATA_DIR, epochs=20)
+                    self.model_handler.train(self.DATA_DIR, epochs=5)
                     messagebox.showinfo("Успех", "Обучение завершено!")
                 except Exception as e:
                     messagebox.showerror("Ошибка", f"Ошибка обучения: {str(e)}")
