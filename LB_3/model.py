@@ -109,7 +109,7 @@ class SegmentationModel:
         self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return self.model
 
-    def train(self, data_path, epochs=5):
+    def train(self, data_path, epochs=20):
         dataset = self.load_and_preprocess_data(data_path)
         dataset = dataset.batch(self.BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
         
